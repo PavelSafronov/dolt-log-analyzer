@@ -28,12 +28,14 @@ func TestPlatformTestCase(t *testing.T) {
 		doltLogFilePath: "./test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.txt",
 		outputFilePath:  "./test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.out.txt",
 		logger:          NewTestLogger(t),
+		logQueryText:    true,
 	}
 	err := mainLogic(settings)
 	require.NoError(t, err)
 }
 
 func TestSampleCase(t *testing.T) {
+	// prepare
 	logs := []string{
 		"2023-02-09T18:30:09Z DEBUG [conn 3] Query finished in 12 ms {connectTime=2023-02-09T18:30:05Z, connectionDb=test_nautobot, query=SELECT `extras_job`.`id`, `extras_job`.`created`, `extras_job`.`last_updated`, `extras_job`.`_custom_field_data`, `extras_job`.`source`, `extras_job`.`module_name`, `extras_job`.`job_class_name`, `extras_job`.`slug`, `extras_job`.`grouping`, `extras_job`.`name`, `extras_job`.`description`, `extras_job`.`installed`, `extras_job`.`enabled`, `extras_job`.`commit_default`, `extras_job`.`hidden`, `extras_job`.`read_only`, `extras_job`.`approval_required`, `extras_job`.`soft_time_limit`, `extras_job`.`time_limit`, `extras_job`.`grouping_override`, `extras_job`.`name_override`, `extras_job`.`description_override`, `extras_job`.`commit_default_override`, `extras_job`.`hidden_override`, `extras_job`.`read_only_override`, `extras_job`.`approval_required_override`, `extras_job`.`soft_time_limit_override`, `extras_job`.`time_limit_override`, `extras_job`.`git_repository_id`, `extras_job`.`has_sensitive_variables`, `extras_job`.`has_sensitive_variables_override`, `extras_job`.`is_job_hook_receiver`, `extras_job`.`task_queues`, `extras_job`.`task_queues_override` FROM `extras_job` WHERE (`extras_job`.`git_repository_id` IS NULL AND `extras_job`.`job_class_name` = 'TestFileUploadPass' AND `extras_job`.`module_name` = 'test_file_upload_pass' AND `extras_job`.`source` = 'local') LIMIT 21}",
 		"2023-03-05T00:13:41Z WARN [conn 329] error running query {connectTime=2023-03-05T00:13:13Z, connectionDb=test_nautobot, error=nil operand found in comparison, query=SELECT `ipam_prefix`.`id`, `ipam_prefix`.`created`, `ipam_prefix`.`last_updated`, `ipam_prefix`.`_custom_field_data`, `ipam_prefix`.`status_id`, `ipam_prefix`.`network`, `ipam_prefix`.`broadcast`, `ipam_prefix`.`prefix_length`, `ipam_prefix`.`site_id`, `ipam_prefix`.`location_id`, `ipam_prefix`.`vrf_id`, `ipam_prefix`.`tenant_id`, `ipam_prefix`.`vlan_id`, `ipam_prefix`.`role_id`, `ipam_prefix`.`is_pool`, `ipam_prefix`.`description` FROM `ipam_prefix` LEFT OUTER JOIN `ipam_vrf` ON (`ipam_prefix`.`vrf_id` = `ipam_vrf`.`id`) WHERE `ipam_prefix`.`prefix_length` = 52 ORDER BY `ipam_vrf`.`name` ASC, `ipam_prefix`.`network` ASC, `ipam_prefix`.`prefix_length` ASC}",
@@ -50,6 +52,7 @@ func TestSampleCase(t *testing.T) {
 	require.NoError(t, err)
 	defer os.Remove(output.Name())
 
+	// Write the logs to the input file
 	for _, log := range logs {
 		_, err = input.WriteString(log + "\n")
 		require.NoError(t, err)
@@ -57,13 +60,31 @@ func TestSampleCase(t *testing.T) {
 	err = input.Close()
 	require.NoError(t, err)
 
-	t.Log()
 	settings := Settings{
 		doltLogFilePath: input.Name(),
 		outputFilePath:  output.Name(),
 		logger:          NewTestLogger(t),
+		logQueryText:    true,
 	}
 
+	// Run the main logic
 	err = mainLogic(settings)
 	require.NoError(t, err)
+
+	// Read the output file
+	outBytes, err := os.ReadFile(output.Name())
+	require.NoError(t, err)
+	outText := string(outBytes)
+	require.NotEmpty(t, outText)
+
+	require.Contains(t, outText, "Line 1")
+	require.Contains(t, outText, "Line 2")
+	require.NotContains(t, outText, "Line 3") // we only process "Query finished" lines
+	require.Contains(t, outText, "Line 4")
+
+	require.Contains(t, outText, "Query error: table not found: django_content_type")
+	require.Contains(t, outText, "UnresolvedTable(extras_job)")
+	require.Contains(t, outText, "UnresolvedTable(ipam_prefix)")
+	require.Contains(t, outText, "UnresolvedTable(ipam_vrf)")
+	require.Contains(t, outText, "UnresolvedTable(django_content_type)")
 }

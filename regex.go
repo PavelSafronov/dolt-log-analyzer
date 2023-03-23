@@ -7,6 +7,7 @@ var (
 	finishedQueryRegex = ".*] Query finished in .*{.*, query=(.*)}"
 	// 2023-03-22T18:55:23Z WARN [conn 2] error running query {connectTime=2023-03-22T18:55:23Z, connectionDb=, error=can't create database test_nautobot; database exists, query=CREATE DATABASE `test_nautobot`}
 	errorQueryRegex = ".*] error running query {.*, error=(.*), query=(.*)}"
+
 	// select 'dolt: setUp, test id = nautobot.dcim.tests.test_filters.CableTestCase.test_color'
 	testStartingRegex = "select 'dolt: setUp, test id = (.*)'"
 	// select 'dolt: _post_teardown, test id = nautobot.dcim.tests.test_filters.CableTestCase.test_id'

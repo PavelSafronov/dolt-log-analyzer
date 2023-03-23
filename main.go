@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/dolthub/go-mysql-server/sql"
 	"os"
+	"strings"
 )
 
 type Settings struct {
@@ -16,6 +17,10 @@ type Settings struct {
 	outputFilePath string
 	// Logger to use for logging
 	logger Logger
+	// Whether to hide queries that are not associated with a test
+	hideNonTestQueries bool
+	// Whether to log query text
+	logQueryText bool
 }
 
 func main() {
@@ -30,16 +35,23 @@ func readInputs() Settings {
 	var verbose bool
 	var log string
 	var out string
+	var hideNonTestQueries bool
+	var showQueryText bool
 
 	flag.StringVar(&log, "log", "", "Path to the dolt log file")
 	flag.StringVar(&out, "out", "", "Path to the output file")
+	flag.BoolVar(&hideNonTestQueries, "hide-non-test-queries", false, "Whether to hide queries that are not associated with a test")
+	flag.BoolVar(&showQueryText, "show-query-text", false, "Whether to log query text")
+
 	flag.BoolVar(&verbose, "verbose", false, "Whether to log to stdout")
 	flag.BoolVar(&verbose, "v", false, "Whether to log to stdout")
 	flag.Parse()
 
 	settings := Settings{
-		doltLogFilePath: log,
-		outputFilePath:  out,
+		doltLogFilePath:    log,
+		outputFilePath:     out,
+		hideNonTestQueries: hideNonTestQueries,
+		logQueryText:       showQueryText,
 	}
 	if verbose {
 		settings.logger = NewConsoleLogger()
@@ -68,7 +80,7 @@ func mainLogic(settings Settings) error {
 		}
 	}
 
-	parseInput(input, logAndWriteLn)
+	parseInput(input, logAndWriteLn, settings)
 
 	return nil
 }
@@ -76,7 +88,7 @@ func mainLogic(settings Settings) error {
 // parseInput parses the input file and writes the results to the output file
 // this function does not return errors, instead it logs them to the output file, along
 // with the line number where the error occurred and the query that caused the error
-func parseInput(input *os.File, logAndWriteLn func(format string, a ...any)) {
+func parseInput(input *os.File, logAndWriteLn func(format string, a ...any), settings Settings) {
 	ctx := sql.NewEmptyContext()
 	testId := ""
 	lineNumber := 0
@@ -121,29 +133,48 @@ func parseInput(input *os.File, logAndWriteLn func(format string, a ...any)) {
 		case testFinishedParse != nil:
 			finishedTestId := testFinishedParse[0]
 			if finishedTestId != testId {
-				logAndWriteLn("line %d, test id mismatch: %s != %s\n", lineNumber, finishedTestId, testId)
+				logAndWriteLn("Line %d, test id mismatch: %s (this test) != %s (last started test)", lineNumber, finishedTestId, testId)
 			}
 			testId = ""
 			// this was a "notification" query, no need to analyze it
 			continue
 		}
 
+		if settings.hideNonTestQueries && testId == "" {
+			continue
+		}
+
+		logAndWriteLn("Line %d", lineNumber)
+
 		if testId != "" {
-			logAndWriteLn("Test: %s\n", testId)
+			pyTestName := getPyTestName(testId)
+			logAndWriteLn("Test: %s", pyTestName)
+		}
+
+		if settings.logQueryText {
+			logAndWriteLn("Query:\n%s", query)
 		}
 
 		node, err := ParseQuery(ctx, query)
 		if err != nil {
-			logAndWriteLn("line %d, error parsing query '%s': %s\n", lineNumber, query, err)
+			logAndWriteLn("Error parsing query '%s': %s", query, err)
 			continue
 		}
 
-		logAndWriteLn("line %d, query tree: \n%s\n",
-			lineNumber, sql.DebugString(node))
+		logAndWriteLn("Query tree:\n%s", sql.DebugString(node))
 		if queryError != "" {
-			logAndWriteLn("Query error: %s\n", queryError)
+			logAndWriteLn("Query error: %s", queryError)
 		}
 
 		logAndWriteLn("--------------------------------------------------")
 	}
+}
+
+func getPyTestName(fullTestId string) string {
+	// test_napalm_args (nautobot.dcim.tests.test_filters.PlatformTestCase)
+	lastPeriodIndex := strings.LastIndex(fullTestId, ".")
+	testName := fullTestId[lastPeriodIndex+1:]
+	testSuite := fullTestId[:lastPeriodIndex]
+	pyTestName := fmt.Sprintf("%s (%s)", testName, testSuite)
+	return pyTestName
 }
