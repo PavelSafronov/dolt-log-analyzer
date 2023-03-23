@@ -21,6 +21,10 @@ var _ Logger = (*ConsoleLogger)(nil)
 
 type ConsoleLogger struct{}
 
+func NewConsoleLogger() *ConsoleLogger {
+	return &ConsoleLogger{}
+}
+
 func (l *ConsoleLogger) Log(args ...any) {
 	fmt.Println(args...)
 }

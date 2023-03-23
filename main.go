@@ -27,14 +27,24 @@ func main() {
 }
 
 func readInputs() Settings {
-	doltLogFilePath := flag.String("log", "", "Path to the dolt log file")
-	outputFilePath := flag.String("out", "", "Path to the output file")
+	var verbose bool
+	var log string
+	var out string
+
+	flag.StringVar(&log, "log", "", "Path to the dolt log file")
+	flag.StringVar(&out, "out", "", "Path to the output file")
+	flag.BoolVar(&verbose, "verbose", false, "Whether to log to stdout")
+	flag.BoolVar(&verbose, "v", false, "Whether to log to stdout")
 	flag.Parse()
 
-	return Settings{
-		doltLogFilePath: *doltLogFilePath,
-		outputFilePath:  *outputFilePath,
+	settings := Settings{
+		doltLogFilePath: log,
+		outputFilePath:  out,
 	}
+	if verbose {
+		settings.logger = NewConsoleLogger()
+	}
+	return settings
 }
 
 func mainLogic(settings Settings) error {
