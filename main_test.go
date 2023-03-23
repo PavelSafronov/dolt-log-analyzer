@@ -7,10 +7,29 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var _ Logger = (*TestLogger)(nil)
+
+type TestLogger struct {
+	t *testing.T
+}
+
+func NewTestLogger(t *testing.T) *TestLogger {
+	return &TestLogger{t: t}
+}
+func (l *TestLogger) Log(args ...interface{}) {
+	l.t.Log(args...)
+}
+func (l *TestLogger) Logf(format string, args ...interface{}) {
+	l.t.Logf(format, args...)
+}
+
 func TestPlatformTestCase(t *testing.T) {
-	logPath := "./test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.txt"
-	outPath := "./test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.out.txt"
-	err := mainLogic(logPath, outPath)
+	settings := Settings{
+		doltLogFilePath: "./test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.txt",
+		outputFilePath:  "./test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.out.txt",
+		logger:          NewTestLogger(t),
+	}
+	err := mainLogic(settings)
 	require.NoError(t, err)
 }
 
@@ -38,6 +57,13 @@ func TestSampleCase(t *testing.T) {
 	err = input.Close()
 	require.NoError(t, err)
 
-	err = mainLogic(input.Name(), output.Name())
+	t.Log()
+	settings := Settings{
+		doltLogFilePath: input.Name(),
+		outputFilePath:  output.Name(),
+		logger:          NewTestLogger(t),
+	}
+
+	err = mainLogic(settings)
 	require.NoError(t, err)
 }

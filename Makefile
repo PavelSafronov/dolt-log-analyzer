@@ -1,10 +1,10 @@
 .PHONY: test
 
-BINARY=dolt-lot-analyzer
+BINARY=dolt-log-analyzer
 VERSION=$(shell git describe --tags)
 LDFLAGS=-ldflags "-w -s -X main.Version=${VERSION}"
 
-all: build test lint
+all: build test install
 
 prep:
 	go mod tidy
@@ -16,7 +16,7 @@ build: prep
 	go build ${LDFLAGS} -o ${BINARY} .
 
 test: build
-	go test -v ./... -coverprofile="./test-coverage.out"
+	go test ./... -coverprofile="./test-coverage.out"
 
 test_coverage: test
 	go tool cover -html="./test-coverage.out" -o "./test-coverage.html"
@@ -24,7 +24,7 @@ test_coverage: test
 test_coverage_html: test_coverage
 	open "./test-coverage.html"
 
-install: build test lint
+install: build test
 	go install ${LDFLAGS}
 
 uninstall:
