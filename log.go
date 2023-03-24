@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+	"testing"
+)
 
 type Logger interface {
 	// Log formats its arguments using default formatting, analogous to Println,
@@ -26,8 +30,72 @@ func NewConsoleLogger() *ConsoleLogger {
 }
 
 func (l *ConsoleLogger) Log(args ...any) {
-	fmt.Println(args...)
+	fmt.Print(args...)
 }
 func (l *ConsoleLogger) Logf(format string, args ...any) {
 	fmt.Printf(format, args...)
+}
+
+var _ Logger = (*TestLogger)(nil)
+
+type TestLogger struct {
+	t *testing.T
+}
+
+func NewTestLogger(t *testing.T) *TestLogger {
+	return &TestLogger{t: t}
+}
+func (l *TestLogger) Log(args ...interface{}) {
+	l.t.Log(args...)
+}
+func (l *TestLogger) Logf(format string, args ...interface{}) {
+	l.t.Logf(format, args...)
+}
+
+var _ Logger = (*FileLogger)(nil)
+
+type FileLogger struct {
+	File *os.File
+}
+
+func (f FileLogger) Log(args ...any) {
+	message := fmt.Sprint(args...)
+	_, err := f.File.WriteString(message)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (f FileLogger) Logf(format string, args ...any) {
+	message := fmt.Sprintf(format, args...)
+	_, err := f.File.WriteString(message)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func NewFileLogger(file *os.File) *FileLogger {
+	return &FileLogger{File: file}
+}
+
+var _ Logger = (*MultiLogger)(nil)
+
+type MultiLogger struct {
+	Loggers []Logger
+}
+
+func (p MultiLogger) Log(args ...any) {
+	for _, logger := range p.Loggers {
+		logger.Log(args...)
+	}
+}
+
+func (p MultiLogger) Logf(format string, args ...any) {
+	for _, logger := range p.Loggers {
+		logger.Logf(format, args...)
+	}
+}
+
+func NewProxyLogger(loggers ...Logger) *MultiLogger {
+	return &MultiLogger{Loggers: loggers}
 }

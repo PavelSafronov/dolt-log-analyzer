@@ -3,93 +3,77 @@ package main
 import (
 	"bufio"
 	"encoding/base64"
-	"flag"
 	"fmt"
 	"github.com/dolthub/go-mysql-server/sql"
 	"os"
 	"strings"
 )
 
-type Settings struct {
-	// Path to the dolt log file
-	doltLogFilePath string
-	// Path to the output file
-	outputFilePath string
-	// Logger to use for logging
-	logger Logger
-	// Whether to hide queries that are not associated with a test
-	hideNonTestQueries bool
-	// Whether to log query text
-	logQueryText bool
-}
-
 func main() {
 	settings := readInputs()
-	err := mainLogic(settings)
+	result, err := mainLogic(settings)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Printf("Queries output: %s", result.queriesOutputPath)
+	fmt.Printf("Analysis output: %s", result.analysisOutputPath)
 }
 
-func readInputs() Settings {
-	var verbose bool
-	var log string
-	var out string
-	var hideNonTestQueries bool
-	var showQueryText bool
-
-	flag.StringVar(&log, "log", "", "Path to the dolt log file")
-	flag.StringVar(&out, "out", "", "Path to the output file")
-	flag.BoolVar(&hideNonTestQueries, "hide-non-test-queries", false, "Whether to hide queries that are not associated with a test")
-	flag.BoolVar(&showQueryText, "show-query-text", false, "Whether to log query text")
-
-	flag.BoolVar(&verbose, "verbose", false, "Whether to log to stdout")
-	flag.BoolVar(&verbose, "v", false, "Whether to log to stdout")
-	flag.Parse()
-
-	settings := Settings{
-		doltLogFilePath:    log,
-		outputFilePath:     out,
-		hideNonTestQueries: hideNonTestQueries,
-		logQueryText:       showQueryText,
-	}
-	if verbose {
-		settings.logger = NewConsoleLogger()
-	}
-	return settings
+type MainLogicResult struct {
+	queriesOutputPath  string
+	analysisOutputPath string
 }
 
-func mainLogic(settings Settings) error {
+func mainLogic(settings Settings) (MainLogicResult, error) {
+	result := MainLogicResult{}
+
+	// parse the input file
+	queryCollection, err := parseInput(settings)
+	if err != nil {
+		return result, err
+	}
+
+	// write the queries to a file
+	queriesOutputPath := settings.GetOutputFilePath(".queries")
+	queriesOutput, err := os.Create(queriesOutputPath)
+	if err != nil {
+		return result, err
+	}
+	defer queriesOutput.Close()
+	queriesLogger := NewProxyLogger(NewFileLogger(queriesOutput), settings.logger)
+	for _, query := range queryCollection.All {
+		queriesLogger.Logf(query.String(settings.logQueryText))
+		queriesLogger.Log("--------------------------------------------------\n")
+	}
+
+	// write analysis to a file
+	analysisOutputPath := settings.GetOutputFilePath(".analysis")
+	analysisOutput, err := os.Create(analysisOutputPath)
+	if err != nil {
+		return result, err
+	}
+	defer analysisOutput.Close()
+	analysisLogger := NewProxyLogger(NewFileLogger(analysisOutput), settings.logger)
+	analysisLogger.Logf("Total queries: %d", len(queryCollection.All))
+
+	// fill in the results
+	result.queriesOutputPath = queriesOutputPath
+	result.analysisOutputPath = analysisOutputPath
+	return result, nil
+}
+
+// parseInput parses the input file and returns a QueryCollection of all the input queries.
+func parseInput(settings Settings) (QueryCollection, error) {
+	collection := NewQueryCollection()
+	ctx := sql.NewEmptyContext()
+	logger := settings.logger
+
 	input, err := os.Open(settings.doltLogFilePath)
 	if err != nil {
-		return err
+		return collection, err
 	}
 	defer input.Close()
 
-	output, err := os.Create(settings.outputFilePath)
-	if err != nil {
-		return err
-	}
-	defer output.Close()
-
-	logAndWriteLn := func(format string, a ...any) {
-		message := fmt.Sprintf(format, a...) + "\n"
-		output.WriteString(message)
-		if settings.logger != nil {
-			settings.logger.Log(message)
-		}
-	}
-
-	parseInput(input, logAndWriteLn, settings)
-
-	return nil
-}
-
-// parseInput parses the input file and writes the results to the output file
-// this function does not return errors, instead it logs them to the output file, along
-// with the line number where the error occurred and the query that caused the error
-func parseInput(input *os.File, logAndWriteLn func(format string, a ...any), settings Settings) {
-	ctx := sql.NewEmptyContext()
 	testId := ""
 	lineNumber := 0
 	scanner := bufio.NewScanner(input)
@@ -133,7 +117,8 @@ func parseInput(input *os.File, logAndWriteLn func(format string, a ...any), set
 		case testFinishedParse != nil:
 			finishedTestId := testFinishedParse[0]
 			if finishedTestId != testId {
-				logAndWriteLn("Line %d, test id mismatch: %s (this test) != %s (last started test)", lineNumber, finishedTestId, testId)
+				logger.Logf("Line %d, test id mismatch: %s (this test) != %s (last started test)",
+					lineNumber, finishedTestId, testId)
 			}
 			testId = ""
 			// this was a "notification" query, no need to analyze it
@@ -144,30 +129,31 @@ func parseInput(input *os.File, logAndWriteLn func(format string, a ...any), set
 			continue
 		}
 
-		logAndWriteLn("Line %d", lineNumber)
-
+		var pyTestName string
 		if testId != "" {
-			pyTestName := getPyTestName(testId)
-			logAndWriteLn("Test: %s", pyTestName)
+			pyTestName = getPyTestName(testId)
 		}
 
-		if settings.logQueryText {
-			logAndWriteLn("Query:\n%s", query)
-		}
-
-		node, err := ParseQuery(ctx, query)
+		var node sql.Node
+		parsedNode, err := ParseQuery(ctx, query)
 		if err != nil {
-			logAndWriteLn("Error parsing query '%s': %s", query, err)
-			continue
+			logger.Logf("Error parsing query '%s': %s", query, err)
+		} else {
+			node = parsedNode
 		}
 
-		logAndWriteLn("Query tree:\n%s", sql.DebugString(node))
-		if queryError != "" {
-			logAndWriteLn("Query error: %s", queryError)
+		queryObj := Query{
+			TestId:     testId,
+			Text:       query,
+			Node:       node,
+			LineNumber: lineNumber,
+			PyTestName: pyTestName,
+			Error:      queryError,
 		}
-
-		logAndWriteLn("--------------------------------------------------")
+		collection.Add(queryObj)
 	}
+
+	return collection, nil
 }
 
 func getPyTestName(fullTestId string) string {

@@ -7,31 +7,20 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var _ Logger = (*TestLogger)(nil)
-
-type TestLogger struct {
-	t *testing.T
-}
-
-func NewTestLogger(t *testing.T) *TestLogger {
-	return &TestLogger{t: t}
-}
-func (l *TestLogger) Log(args ...interface{}) {
-	l.t.Log(args...)
-}
-func (l *TestLogger) Logf(format string, args ...interface{}) {
-	l.t.Logf(format, args...)
+func TestLatestLogs(t *testing.T) {
+	//t.Skip("Skipping test because it is specific to Pavel's system")
+	settings := NewSettings("/Users/pavel/Work/2022-12-07-nautobot/dolt-nautobot/test_data/logs-PlatformTestCase-march-23/dolt-sql.log")
+	result, err := mainLogic(settings)
+	require.NoError(t, err)
+	require.Equal(t, "/Users/pavel/Work/2022-12-07-nautobot/dolt-nautobot/test_data/logs-PlatformTestCase-march-23/dolt-sql.queries.log", result.queriesOutputPath)
 }
 
 func TestPlatformTestCase(t *testing.T) {
-	settings := Settings{
-		doltLogFilePath: "./test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.txt",
-		outputFilePath:  "./test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.out.txt",
-		logger:          NewTestLogger(t),
-		logQueryText:    true,
-	}
-	err := mainLogic(settings)
+	settings := NewSettings("test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.txt")
+	result, err := mainLogic(settings)
 	require.NoError(t, err)
+	require.Equal(t, "test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.queries.txt", result.queriesOutputPath)
+	require.Equal(t, "test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.analysis.txt", result.analysisOutputPath)
 }
 
 func TestSampleCase(t *testing.T) {
@@ -46,12 +35,6 @@ func TestSampleCase(t *testing.T) {
 	require.NoError(t, err)
 	defer os.Remove(input.Name())
 
-	output, err := os.CreateTemp("", "dolt-sql.out")
-	require.NoError(t, err)
-	err = output.Close()
-	require.NoError(t, err)
-	defer os.Remove(output.Name())
-
 	// Write the logs to the input file
 	for _, log := range logs {
 		_, err = input.WriteString(log + "\n")
@@ -60,19 +43,15 @@ func TestSampleCase(t *testing.T) {
 	err = input.Close()
 	require.NoError(t, err)
 
-	settings := Settings{
-		doltLogFilePath: input.Name(),
-		outputFilePath:  output.Name(),
-		logger:          NewTestLogger(t),
-		logQueryText:    true,
-	}
+	settings := NewSettings(input.Name())
+	settings.logger = NewTestLogger(t)
 
 	// Run the main logic
-	err = mainLogic(settings)
+	result, err := mainLogic(settings)
 	require.NoError(t, err)
 
-	// Read the output file
-	outBytes, err := os.ReadFile(output.Name())
+	// Read the queries output file
+	outBytes, err := os.ReadFile(result.queriesOutputPath)
 	require.NoError(t, err)
 	outText := string(outBytes)
 	require.NotEmpty(t, outText)
