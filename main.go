@@ -19,47 +19,23 @@ func main() {
 	fmt.Printf("Analysis output: %s", result.analysisOutputPath)
 }
 
-type MainLogicResult struct {
-	queriesOutputPath  string
-	analysisOutputPath string
+var separator = "--------------------------------------------------\n"
+
+type Pair[T, U any] struct {
+	First  T
+	Second U
 }
 
-func mainLogic(settings Settings) (MainLogicResult, error) {
-	result := MainLogicResult{}
-
+func mainLogic(settings Settings) (AnalysisOutput, error) {
 	// parse the input file
 	queryCollection, err := parseInput(settings)
 	if err != nil {
-		return result, err
+		return AnalysisOutput{}, err
 	}
 
-	// write the queries to a file
-	queriesOutputPath := settings.GetOutputFilePath(".queries")
-	queriesOutput, err := os.Create(queriesOutputPath)
-	if err != nil {
-		return result, err
-	}
-	defer queriesOutput.Close()
-	queriesLogger := NewProxyLogger(NewFileLogger(queriesOutput), settings.logger)
-	for _, query := range queryCollection.All {
-		queriesLogger.Logf(query.String(settings.logQueryText))
-		queriesLogger.Log("--------------------------------------------------\n")
-	}
-
-	// write analysis to a file
-	analysisOutputPath := settings.GetOutputFilePath(".analysis")
-	analysisOutput, err := os.Create(analysisOutputPath)
-	if err != nil {
-		return result, err
-	}
-	defer analysisOutput.Close()
-	analysisLogger := NewProxyLogger(NewFileLogger(analysisOutput), settings.logger)
-	analysisLogger.Logf("Total queries: %d", len(queryCollection.All))
-
-	// fill in the results
-	result.queriesOutputPath = queriesOutputPath
-	result.analysisOutputPath = analysisOutputPath
-	return result, nil
+	// analyze the queries
+	analysis, err := Analyze(queryCollection, settings)
+	return analysis, err
 }
 
 // parseInput parses the input file and returns a QueryCollection of all the input queries.
@@ -131,7 +107,11 @@ func parseInput(settings Settings) (QueryCollection, error) {
 
 		var pyTestName string
 		if testId != "" {
-			pyTestName = getPyTestName(testId)
+			// test_napalm_args (nautobot.dcim.tests.test_filters.PlatformTestCase)
+			lastPeriodIndex := strings.LastIndex(testId, ".")
+			testName := testId[lastPeriodIndex+1:]
+			testSuite := testId[:lastPeriodIndex]
+			pyTestName = fmt.Sprintf("%s (%s)", testName, testSuite)
 		}
 
 		var node sql.Node
@@ -154,13 +134,4 @@ func parseInput(settings Settings) (QueryCollection, error) {
 	}
 
 	return collection, nil
-}
-
-func getPyTestName(fullTestId string) string {
-	// test_napalm_args (nautobot.dcim.tests.test_filters.PlatformTestCase)
-	lastPeriodIndex := strings.LastIndex(fullTestId, ".")
-	testName := fullTestId[lastPeriodIndex+1:]
-	testSuite := fullTestId[:lastPeriodIndex]
-	pyTestName := fmt.Sprintf("%s (%s)", testName, testSuite)
-	return pyTestName
 }

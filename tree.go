@@ -31,12 +31,15 @@ func ParseQuery(ctx *sql.Context, query string) (sql.Node, error) {
 
 func DropExtraneousData(node sql.Node) (sql.Node, error) {
 	newNode, _, err := transform.NodeWithOpaque(node, func(node sql.Node) (sql.Node, transform.TreeIdentity, error) {
+		var err error
 		var newNode sql.Node
 		switch node := node.(type) {
+		case *plan.UnresolvedTable:
+			newNode = plan.NewResolvedDualTable()
 		case *plan.Project:
 			newNode = plan.NewProject([]sql.Expression{expression.NewStar()}, node.Child)
-			//case *plan.Filter:
-			//	newNode = plan.NewFilter(node.Expression, node.Child)
+		default:
+			//panic(fmt.Sprintf("unhandled node type: %T", node))
 		}
 
 		sameAll := transform.SameTree

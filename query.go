@@ -17,6 +17,7 @@ type Query struct {
 
 type QueryCollection struct {
 	All           []Query
+	TestQueries   []Query
 	ByTestId      map[string][]Query
 	ByDebugString map[string][]Query
 }
@@ -31,6 +32,9 @@ func NewQueryCollection() QueryCollection {
 
 func (c *QueryCollection) Add(query Query) {
 	c.All = append(c.All, query)
+	if query.TestId != "" {
+		c.TestQueries = append(c.TestQueries, query)
+	}
 	c.ByTestId[query.TestId] = append(c.ByTestId[query.TestId], query)
 	nodeDebugString := sql.DebugString(query.Node)
 	c.ByDebugString[nodeDebugString] = append(c.ByDebugString[nodeDebugString], query)
