@@ -1,8 +1,10 @@
 package main
 
 import (
+	"golang.org/x/exp/slices"
 	"os"
 	"sort"
+	"strings"
 )
 
 type AnalysisOutput struct {
@@ -74,15 +76,18 @@ func Analyze(queryCollection QueryCollection, settings Settings) (AnalysisOutput
 		dbg := pair.First
 		queries := pair.Second
 
-		analysisLogger.Logf("Debug string: %s\n", dbg)
+		analysisLogger.Logf("Debug string: \n%s\n", dbg)
 		analysisLogger.Logf("Number of queries: %d\n", len(queries))
-		testQueries := [][]Query{}
+
+		testIds := []string{}
 		for _, query := range queries {
-			if query.TestId != "" {
-				testQueries = append(testQueries, []Query{query})
+			if query.TestId != "" && !slices.Contains(testIds, query.TestId) {
+				testIds = append(testIds, query.TestId)
 			}
 		}
-		analysisLogger.Logf("Number of test queries: %d\n", len(testQueries))
+		sort.Strings(testIds)
+		analysisLogger.Logf("Test IDs:\n%s\n", strings.Join(testIds, "\n"))
+
 		analysisLogger.Logf(separator)
 	}
 
