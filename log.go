@@ -86,13 +86,17 @@ type MultiLogger struct {
 
 func (p MultiLogger) Log(args ...any) {
 	for _, logger := range p.Loggers {
-		logger.Log(args...)
+		if logger != nil {
+			logger.Log(args...)
+		}
 	}
 }
 
 func (p MultiLogger) Logf(format string, args ...any) {
 	for _, logger := range p.Loggers {
-		logger.Logf(format, args...)
+		if logger != nil {
+			logger.Logf(format, args...)
+		}
 	}
 }
 

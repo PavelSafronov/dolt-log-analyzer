@@ -8,6 +8,8 @@ import (
 type Settings struct {
 	// Path to the dolt log file
 	doltLogFilePath string
+	// Path to the pytest report file
+	pytestReportPath string
 	// Path to the output directory
 	outputDirPath string
 	// Base name of the output files, taken from the dolt log file name
@@ -23,13 +25,14 @@ type Settings struct {
 	logFileExtension string
 }
 
-func NewSettings(logPath string) Settings {
+func NewSettings(logPath string, pytestReportPath string) Settings {
 	logFileName := filepath.Base(logPath)
 	logFileExt := filepath.Ext(logFileName)
 	outputFileBaseName := logFileName[:len(logFileName)-len(logFileExt)]
 
 	settings := Settings{
 		doltLogFilePath:    logPath,
+		pytestReportPath:   pytestReportPath,
 		outputDirPath:      filepath.Dir(logPath),
 		hideNonTestQueries: false,
 		logQueryText:       true,
@@ -43,10 +46,12 @@ func NewSettings(logPath string) Settings {
 func readInputs() Settings {
 	var verbose bool
 	var logPath string
+	var pytestReportPath string
 	var hideNonTestQueries bool
 	var showQueryText bool
 
 	flag.StringVar(&logPath, "log", "", "Path to the dolt log file")
+	flag.StringVar(&pytestReportPath, "pytest-report", "", "Path to the pytest report file")
 	flag.BoolVar(&hideNonTestQueries, "hide-non-test-queries", false, "Whether to hide queries that are not associated with a test")
 	flag.BoolVar(&showQueryText, "show-query-text", false, "Whether to log query text")
 
@@ -54,11 +59,11 @@ func readInputs() Settings {
 	flag.BoolVar(&verbose, "v", false, "Whether to log to stdout")
 	flag.Parse()
 
-	settings := NewSettings(logPath)
+	settings := NewSettings(logPath, pytestReportPath)
 	settings.hideNonTestQueries = hideNonTestQueries
 	settings.logQueryText = showQueryText
-	if verbose {
-		settings.logger = NewConsoleLogger()
+	if !verbose {
+		settings.logger = nil
 	}
 	return settings
 }

@@ -11,6 +11,7 @@ type Query struct {
 	Text       string
 	Node       sql.Node
 	TestId     string
+	TestFailed bool
 	PyTestName string
 	Error      string
 }
@@ -45,8 +46,11 @@ func (q *Query) String(logQueryText bool) string {
 
 	sb.WriteString(fmt.Sprintf("Line %d\n", q.LineNumber))
 	if q.TestId != "" {
-		sb.WriteString(fmt.Sprintf("TestId: %s\n", q.TestId))
-		sb.WriteString(fmt.Sprintf("PyTest: %s\n", q.PyTestName))
+		if q.TestFailed {
+			sb.WriteString(fmt.Sprintf("FAILED TEST: %s / %s\n", q.TestId, q.PyTestName))
+		} else {
+			sb.WriteString(fmt.Sprintf("Passing test: %s / %s\n", q.TestId, q.PyTestName))
+		}
 	}
 	if logQueryText {
 		sb.WriteString(fmt.Sprintf("Query:\n%s\n", q.Text))

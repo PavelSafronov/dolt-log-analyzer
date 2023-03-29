@@ -12,6 +12,11 @@ var (
 	testStartingRegex = "select 'dolt: setUp, test id = (.*)'"
 	// select 'dolt: _post_teardown, test id = nautobot.dcim.tests.test_filters.CableTestCase.test_id'
 	testFinishedRegex = "select 'dolt: _post_teardown, test id = (.*)'"
+
+	pyTestFailedRegex = `FAIL: (.*) \((.*)\)`
+	pyTestErrorRegex  = `ERROR: (.*) \((.*)\)`
+	pyTestNameRegex   = `(.*) \((.*)\)`
+	testIdNameRegex   = `(.*)\.(.*)`
 )
 
 func RegexSplit(text string, exp string) []string {
@@ -25,4 +30,22 @@ func RegexSplit(text string, exp string) []string {
 		result[i-1] = string(matches[0][i])
 	}
 	return result
+}
+
+// PyTest report format
+//======================================================================
+//FAIL: test_napalm_args (nautobot.dcim.tests.test_filters.PlatformTestCase)
+//----------------------------------------------------------------------
+// TestId format for above test: nautobot.dcim.tests.test_filters.PlatformTestCase.test_napalm_args
+
+func TestIdFromPyTestName(pyTestName string) string {
+	pyTestNameParse := RegexSplit(pyTestName, pyTestNameRegex)
+	testId := pyTestNameParse[1] + "." + pyTestNameParse[0]
+	return testId
+}
+
+func PyTestNameFromTestId(testId string) string {
+	testIdParse := RegexSplit(testId, testIdNameRegex)
+	pyTestName := testIdParse[1] + " (" + testIdParse[0] + ")"
+	return pyTestName
 }

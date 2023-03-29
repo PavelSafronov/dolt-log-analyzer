@@ -8,19 +8,21 @@ import (
 )
 
 func TestLatestLogs(t *testing.T) {
-	//t.Skip("Skipping test because it is specific to Pavel's system")
-	settings := NewSettings("/Users/pavel/Work/2022-12-07-nautobot/dolt-nautobot/test_data/logs-PlatformTestCase-march-23/dolt-sql.log")
+	t.Skip("Skipping test because it is specific to Pavel's system")
+	settings := NewSettings("/Users/pavel/Work/2022-12-07-nautobot/dolt-nautobot/test_data/logs-PlatformTestCase-march-23/dolt-sql.log", "")
 	result, err := mainLogic(settings)
 	require.NoError(t, err)
 	require.Equal(t, "/Users/pavel/Work/2022-12-07-nautobot/dolt-nautobot/test_data/logs-PlatformTestCase-march-23/dolt-sql.queries.log", result.queriesOutputPath)
 }
 
 func TestPlatformTestCase(t *testing.T) {
-	settings := NewSettings("test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.txt")
+	settings := NewSettings(
+		"test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.sql.txt",
+		"test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.pytest.txt")
 	result, err := mainLogic(settings)
 	require.NoError(t, err)
-	require.Equal(t, "test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.queries.txt", result.queriesOutputPath)
-	require.Equal(t, "test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.analysis.txt", result.analysisOutputPath)
+	require.Equal(t, "test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.sql.queries.txt", result.queriesOutputPath)
+	require.Equal(t, "test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.sql.analysis.txt", result.analysisOutputPath)
 }
 
 func TestSampleCase(t *testing.T) {
@@ -44,7 +46,7 @@ func TestSampleCase(t *testing.T) {
 	err = input.Close()
 	require.NoError(t, err)
 
-	settings := NewSettings(input.Name())
+	settings := NewSettings(input.Name(), "")
 	settings.logger = NewTestLogger(t)
 
 	// Run the main logic
@@ -63,8 +65,7 @@ func TestSampleCase(t *testing.T) {
 	require.Contains(t, outText, "Line 4")
 
 	require.Contains(t, outText, "Query error: table not found: django_content_type")
-	require.Contains(t, outText, "django_content_type.app_label = placeholder (text)")
-	require.Contains(t, outText, "Filter(ipam_prefix.prefix_length = 1 (bigint))")
-
-	require.NotContains(t, outText, "s281473537629440_x46")
+	require.Contains(t, outText, "django_content_type.app_label")
+	require.Contains(t, outText, "ipam_prefix.prefix_length ASC nullsFirst")
+	require.Contains(t, outText, "ROLLBACK TO SAVEPOINT placeholder")
 }

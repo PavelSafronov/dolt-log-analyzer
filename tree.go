@@ -8,7 +8,6 @@ import (
 	"github.com/dolthub/go-mysql-server/sql/plan"
 	"github.com/dolthub/go-mysql-server/sql/transform"
 	"github.com/dolthub/go-mysql-server/sql/types"
-	"strings"
 )
 
 var stringPlaceholder = "placeholder"
@@ -29,17 +28,9 @@ func getPlaceholder(dataType sql.Type) sql.Expression {
 }
 
 func ParseQuery(ctx *sql.Context, query string) (sql.Node, error) {
-	shouldDebug := strings.Contains(query, "RELEASE SAVEPOINT")
-	if shouldDebug {
-		fmt.Println("here")
-	}
 	node, err := parse.Parse(ctx, query)
 	if err != nil {
 		return nil, err
-	}
-	debugString := sql.DebugString(node)
-	if shouldDebug {
-		fmt.Println(debugString)
 	}
 	node, err = DropExtraneousData(node)
 	if err != nil {
@@ -66,7 +57,7 @@ func DropExtraneousData(node sql.Node) (sql.Node, error) {
 		case *plan.Project:
 			newNode = plan.NewProject([]sql.Expression{expression.NewStar()}, node.Child)
 		default:
-			fmt.Printf("unhandled node type: %T", node)
+			//fmt.Printf("unhandled node type: %T", node)
 			//panic(fmt.Sprintf("unhandled node type: %T", node))
 		}
 

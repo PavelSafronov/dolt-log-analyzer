@@ -1,0 +1,488 @@
+use_dolt = True, command = coverage run --module nautobot.core.cli test nautobot.dcim.tests.test_filters.PlatformTestCase --config=nautobot/core/tests/nautobot_config.py --keepdb --verbosity 2
+Running docker-compose command "ps --services --filter status=running"
+Running docker-compose command "run --entrypoint 'coverage run --module nautobot.core.cli test nautobot.dcim.tests.test_filters.PlatformTestCase --config=nautobot/core/tests/nautobot_config.py --keepdb --verbosity 2' nautobot"
+PYTHON_VER=3.7 \
+docker-compose \
+    --project-name "nautobot" \
+    --project-directory "/Users/pavel/Work/2022-12-07-nautobot/dolt-nautobot/development/" \
+    --verbose \
+    -f "/Users/pavel/Work/2022-12-07-nautobot/dolt-nautobot/development/docker-compose.yml" \
+    -f "/Users/pavel/Work/2022-12-07-nautobot/dolt-nautobot/development/docker-compose.dev.yml" \
+    -f "/Users/pavel/Work/2022-12-07-nautobot/dolt-nautobot/development/docker-compose.dolt.yml" run \
+    --entrypoint 'coverage run \
+    --module nautobot.core.cli test nautobot.dcim.tests.test_filters.PlatformTestCase \
+    --config=nautobot/core/tests/nautobot_config.py \
+    --keepdb \
+    --verbosity 2' nautobot
+[1A[1B[0G[?25l[+] Building 0.0s (0/0)
+[?25h[1A[0G[?25l[+] Building 0.0s (0/1)
+[?25h[1A[0G[?25l[+] Building 0.2s (2/3)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m => [internal] load metadata for docker.io/library/ubuntu:20.04            0.1s
+[?25h[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 0.3s (2/3)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m => [internal] load metadata for docker.io/library/ubuntu:20.04            0.2s
+[?25h[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 0.5s (2/3)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m => [internal] load metadata for docker.io/library/ubuntu:20.04            0.4s
+[?25h[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 0.6s (2/3)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m => [internal] load metadata for docker.io/library/ubuntu:20.04            0.5s
+[?25h[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 0.8s (2/3)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m => [internal] load metadata for docker.io/library/ubuntu:20.04            0.7s
+[?25h[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 0.9s (2/3)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m => [internal] load metadata for docker.io/library/ubuntu:20.04            0.8s
+[?25h[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 1.1s (2/3)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.0s
+[?25h[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 1.2s (3/3)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[?25h[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 1.3s (4/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m => [internal] load build context                                          0.1s
+ => => transferring context: 68B                                           0.1s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 1.4s (4/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m => [internal] load build context                                          0.3s
+ => => transferring context: 13.86MB                                       0.3s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 1.6s (4/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m => [internal] load build context                                          0.4s
+ => => transferring context: 29.24MB                                       0.4s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 1.7s (4/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m => [internal] load build context                                          0.6s
+ => => transferring context: 45.40MB                                       0.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 1.9s (6/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.1s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 2.0s (7/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.1s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 2.2s (7/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.2s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 2.3s (7/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.4s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 2.5s (7/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.5s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 2.6s (7/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.6s
+[2m => => # Config successfully updated.
+[0m[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 2.7s (8/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m[34m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.6s
+[0m => [ 5/11] RUN dolt config --global --add user.email opensource@networkt  0.1s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 2.9s (8/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m[34m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.6s
+[0m => [ 5/11] RUN dolt config --global --add user.email opensource@networkt  0.3s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 3.0s (8/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m[34m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.6s
+[0m => [ 5/11] RUN dolt config --global --add user.email opensource@networkt  0.4s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 3.2s (8/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m[34m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.6s
+[0m => [ 5/11] RUN dolt config --global --add user.email opensource@networkt  0.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 3.4s (8/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m[34m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.6s
+[0m => [ 5/11] RUN dolt config --global --add user.email opensource@networkt  0.7s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 3.5s (9/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m[34m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.6s
+[0m[34m => [ 5/11] RUN dolt config --global --add user.email opensource@networkt  0.8s
+[0m => [ 6/11] RUN mkdir -p /var/lib/nautobot_dbs/                            0.1s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 3.7s (9/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m[34m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.6s
+[0m[34m => [ 5/11] RUN dolt config --global --add user.email opensource@networkt  0.8s
+[0m => [ 6/11] RUN mkdir -p /var/lib/nautobot_dbs/                            0.3s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 3.8s (13/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m[34m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.6s
+[0m[34m => [ 5/11] RUN dolt config --global --add user.email opensource@networkt  0.8s
+[0m[34m => [ 6/11] RUN mkdir -p /var/lib/nautobot_dbs/                            0.3s
+[0m[34m => [ 7/11] COPY ./development/docker-dolt-config.yaml /var/lib            0.0s
+[0m[34m => [ 8/11] WORKDIR /var/lib/nautobot_dbs                                  0.0s
+[0m[34m => [ 9/11] COPY ./development/dolt-on-start.sh /var/lib                   0.0s
+[0m => [10/11] RUN chmod +x /var/lib/dolt-on-start.sh                         0.1s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 4.0s (14/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m[34m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.6s
+[0m[34m => [ 5/11] RUN dolt config --global --add user.email opensource@networkt  0.8s
+[0m[34m => [ 6/11] RUN mkdir -p /var/lib/nautobot_dbs/                            0.3s
+[0m[34m => [ 7/11] COPY ./development/docker-dolt-config.yaml /var/lib            0.0s
+[0m[34m => [ 8/11] WORKDIR /var/lib/nautobot_dbs                                  0.0s
+[0m[34m => [ 9/11] COPY ./development/dolt-on-start.sh /var/lib                   0.0s
+[0m[34m => [10/11] RUN chmod +x /var/lib/dolt-on-start.sh                         0.1s
+[0m => [11/11] RUN dolt sql -q "SET @@persist.join_complexity_limit = 13"     0.1s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 4.1s (14/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m[34m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.6s
+[0m[34m => [ 5/11] RUN dolt config --global --add user.email opensource@networkt  0.8s
+[0m[34m => [ 6/11] RUN mkdir -p /var/lib/nautobot_dbs/                            0.3s
+[0m[34m => [ 7/11] COPY ./development/docker-dolt-config.yaml /var/lib            0.0s
+[0m[34m => [ 8/11] WORKDIR /var/lib/nautobot_dbs                                  0.0s
+[0m[34m => [ 9/11] COPY ./development/dolt-on-start.sh /var/lib                   0.0s
+[0m[34m => [10/11] RUN chmod +x /var/lib/dolt-on-start.sh                         0.1s
+[0m => [11/11] RUN dolt sql -q "SET @@persist.join_complexity_limit = 13"     0.3s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 4.3s (14/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m[34m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.6s
+[0m[34m => [ 5/11] RUN dolt config --global --add user.email opensource@networkt  0.8s
+[0m[34m => [ 6/11] RUN mkdir -p /var/lib/nautobot_dbs/                            0.3s
+[0m[34m => [ 7/11] COPY ./development/docker-dolt-config.yaml /var/lib            0.0s
+[0m[34m => [ 8/11] WORKDIR /var/lib/nautobot_dbs                                  0.0s
+[0m[34m => [ 9/11] COPY ./development/dolt-on-start.sh /var/lib                   0.0s
+[0m[34m => [10/11] RUN chmod +x /var/lib/dolt-on-start.sh                         0.1s
+[0m => [11/11] RUN dolt sql -q "SET @@persist.join_complexity_limit = 13"     0.4s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 4.4s (14/15)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m[34m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.6s
+[0m[34m => [ 5/11] RUN dolt config --global --add user.email opensource@networkt  0.8s
+[0m[34m => [ 6/11] RUN mkdir -p /var/lib/nautobot_dbs/                            0.3s
+[0m[34m => [ 7/11] COPY ./development/docker-dolt-config.yaml /var/lib            0.0s
+[0m[34m => [ 8/11] WORKDIR /var/lib/nautobot_dbs                                  0.0s
+[0m[34m => [ 9/11] COPY ./development/dolt-on-start.sh /var/lib                   0.0s
+[0m[34m => [10/11] RUN chmod +x /var/lib/dolt-on-start.sh                         0.1s
+[0m => [11/11] RUN dolt sql -q "SET @@persist.join_complexity_limit = 13"     0.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 4.6s (15/16)
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m[34m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.6s
+[0m[34m => [ 5/11] RUN dolt config --global --add user.email opensource@networkt  0.8s
+[0m[34m => [ 6/11] RUN mkdir -p /var/lib/nautobot_dbs/                            0.3s
+[0m[34m => [ 7/11] COPY ./development/docker-dolt-config.yaml /var/lib            0.0s
+[0m[34m => [ 8/11] WORKDIR /var/lib/nautobot_dbs                                  0.0s
+[0m[34m => [ 9/11] COPY ./development/dolt-on-start.sh /var/lib                   0.0s
+[0m[34m => [10/11] RUN chmod +x /var/lib/dolt-on-start.sh                         0.1s
+[0m[34m => [11/11] RUN dolt sql -q "SET @@persist.join_complexity_limit = 13"     0.6s
+[0m => exporting to image                                                     0.1s
+ => => exporting layers                                                    0.1s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 4.6s (16/16) FINISHED
+[34m => [internal] load build definition from Dockerfile-dolt                  0.0s
+[0m[34m => => transferring dockerfile: 74B                                        0.0s
+[0m[34m => [internal] load .dockerignore                                          0.0s
+[0m[34m => => transferring context: 72B                                           0.0s
+[0m[34m => [internal] load metadata for docker.io/library/ubuntu:20.04            1.1s
+[0m[34m => [ 1/11] FROM docker.io/library/ubuntu:20.04@sha256:24a0df437301598d1a  0.0s
+[0m[34m => [internal] load build context                                          0.6s
+[0m[34m => => transferring context: 74.01MB                                       0.6s
+[0m[34m => CACHED [ 2/11] RUN apt update && apt install -y curl mariadb-client &  0.0s
+[0m[34m => [ 3/11] COPY ./development/dolt_linux_amd64 /usr/local/bin/dolt        0.2s
+[0m[34m => [ 4/11] RUN dolt config --global --add user.name nautobot              0.6s
+[0m[34m => [ 5/11] RUN dolt config --global --add user.email opensource@networkt  0.8s
+[0m[34m => [ 6/11] RUN mkdir -p /var/lib/nautobot_dbs/                            0.3s
+[0m[34m => [ 7/11] COPY ./development/docker-dolt-config.yaml /var/lib            0.0s
+[0m[34m => [ 8/11] WORKDIR /var/lib/nautobot_dbs                                  0.0s
+[0m[34m => [ 9/11] COPY ./development/dolt-on-start.sh /var/lib                   0.0s
+[0m[34m => [10/11] RUN chmod +x /var/lib/dolt-on-start.sh                         0.1s
+[0m[34m => [11/11] RUN dolt sql -q "SET @@persist.join_complexity_limit = 13"     0.6s
+[0m[34m => exporting to image                                                     0.1s
+[0m[34m => => exporting layers                                                    0.1s
+[0m[34m => => writing image sha256:18891b4c545da465bc8d339c7111e9e93e5f0ce2bc1d8  0.0s
+[0m[34m => => naming to docker.io/library/nautobot-db                             0.0s
+[0m[?25h[37mDEBU[0m[0000] serving grpc connection
+[37mDEBU[0m[0000] stopping session                              [37mspan[0m="load buildkit capabilities"
+[37mDEBU[0m[0000] serving grpc connection
+[37mDEBU[0m[0004] stopping session
+
+Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
+[1A[1B[0G[?25l[+] Running 3/0
+[34m ⠿ Container nautobot-db-1        Created                                  0.1s
+[0m[34m ⠿ Container nautobot-selenium-1  Creat...                                 0.0s
+[0m[34m ⠿ Container nautobot-redis-1     Created                                  0.0s
+[0m[?25h[1A[1B[0G[?25l[+] Running 0/0
+[37m ⠋ Container nautobot-redis-1     Starting                                 0.1s
+[0m[37m ⠋ Container nautobot-db-1        Starting                                 0.1s
+[0m[37m ⠋ Container nautobot-selenium-1  Start...                                 0.1s
+[0m[?25h[1A[1A[1A[1A[0G[?25l[+] Running 0/3
+[37m ⠙ Container nautobot-redis-1     Starting                                 0.2s
+[0m[37m ⠙ Container nautobot-db-1        Starting                                 0.2s
+[0m[37m ⠙ Container nautobot-selenium-1  Start...                                 0.2s
+[0m[?25h[1A[1A[1A[1A[0G[?25l[34m[+] Running 3/3[0m
+[34m ⠿ Container nautobot-redis-1     Started                                  0.2s
+[0m[34m ⠿ Container nautobot-db-1        Started                                  0.2s
+[0m[34m ⠿ Container nautobot-selenium-1  Start...                                 0.2s
+[0m[?25h
+Sleeping to allow database to start...
+Wrapping model clean methods for custom validators failed because the ContentType table was not available or populated. This is normal during the execution of the migration command for the first time.
+Using NautobotPerformanceTestRunner to run tests ...
+Excluding test tag(s): integration.
+Skipping setup of unused database(s): job_logs.
+Using existing test database for alias 'default' ('test_nautobot')...
+[36;1mOperations to perform:[0m
+[1m  Synchronize unmigrated apps: [0mcacheops, constance, core, corsheaders, db_file_storage, django_ajax_tables, django_extensions, django_filters, django_jinja, django_prometheus, django_tables2, drf_spectacular, drf_spectacular_sidecar, example_plugin_dependency, graphene_django, health_check, humanize, messages, mptt, rest_framework, staticfiles, storage, timezone_field, utilities
+[1m  Apply all migrations: [0madmin, auth, circuits, contenttypes, database, dcim, django_celery_beat, django_rq, example_plugin, extras, ipam, sessions, social_django, taggit, tenancy, users, virtualization
+[36;1mSynchronizing apps without migrations:[0m
+  Creating tables...
+    Running deferred SQL...
+[36;1mRunning migrations:[0m
+  No migrations to apply.
+Pre-populating test database with factory data...
+checking if dolt db is restored
+dolt db is detected, setting is_dolt_db to True
+dolt db is restored, setting dolt_db_is_restored to True
+dolt_db_is_restored is true, so NOT populating database with data
+System check identified some issues:
+
+WARNINGS:
+[33;1m<Settings "nautobot_config">: (nautobot.core.W005) STORAGE_CONFIG has been set but STORAGE_BACKEND is not defined. STORAGE_CONFIG will be ignored.[0m
+[33;1mextras.Job.slug: (mysql.W003) MySQL may not allow unique CharFields to have a max_length > 255.
+	HINT: See: https://docs.djangoproject.com/en/3.2/ref/databases/#mysql-character-fields[0m
+
+System check identified 2 issues (0 silenced).
+test_description (nautobot.dcim.tests.test_filters.PlatformTestCase) ... ok
+test_devices (nautobot.dcim.tests.test_filters.PlatformTestCase) ... ok
+test_has_devices (nautobot.dcim.tests.test_filters.PlatformTestCase) ... ok
+test_has_virtual_machines (nautobot.dcim.tests.test_filters.PlatformTestCase) ... ok
+test_id (nautobot.dcim.tests.test_filters.PlatformTestCase)
+Verify that the filterset supports filtering by id. ... ok
+test_invalid_filter (nautobot.dcim.tests.test_filters.PlatformTestCase)
+Verify that the filterset reports as invalid when initialized with an unsupported filter parameter. ... ok
+test_manufacturer (nautobot.dcim.tests.test_filters.PlatformTestCase) ... ok
+test_name (nautobot.dcim.tests.test_filters.PlatformTestCase)
+Verify that the filterset supports filtering by name. ... ok
+test_napalm_args (nautobot.dcim.tests.test_filters.PlatformTestCase) ... FAIL
+test_napalm_driver (nautobot.dcim.tests.test_filters.PlatformTestCase) ... ok
+test_slug (nautobot.dcim.tests.test_filters.PlatformTestCase)
+Verify that the filterset supports filtering by slug. ... ok
+test_virtual_machines (nautobot.dcim.tests.test_filters.PlatformTestCase) ... ok
+
+======================================================================
+FAIL: test_napalm_args (nautobot.dcim.tests.test_filters.PlatformTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/source/nautobot/dcim/tests/test_filters.py", line 2416, in test_napalm_args
+    self.assertEqual(self.filterset(params, self.queryset).qs.count(), len(napalm_args))
+AssertionError: 0 != 2
+
+----------------------------------------------------------------------
+Ran 12 tests in 34.329s
+
+FAILED (failures=1)
+checking if dolt db is restored
+dolt db is detected, setting is_dolt_db to True
+Detected dolt db, not emptying database
+[37mDEBU[0m[0068] [hijack] End of stdout
