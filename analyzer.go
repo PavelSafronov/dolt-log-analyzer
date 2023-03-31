@@ -5,9 +5,13 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/dolthub/go-mysql-server/sql"
+	"github.com/dolthub/go-mysql-server/sql/parse"
+	"github.com/dolthub/go-mysql-server/sql/plan"
+	"github.com/dolthub/go-mysql-server/sql/transform"
 	"golang.org/x/exp/slices"
 	"os"
 	"sort"
+	"strings"
 )
 
 type AnalysisOutput struct {
@@ -18,6 +22,39 @@ type AnalysisOutput struct {
 type TestRun struct {
 	Queries       QueryCollection
 	FailedTestIds []string
+	Tests         []Test
+}
+
+type Test struct {
+	Id         string
+	Failed     bool
+	Queries    []Query
+	TablesUsed []string
+}
+
+func (t *Test) String() string {
+	sb := strings.Builder{}
+	sb.WriteString(fmt.Sprintf("Test %s / %s\n", t.Id, PyTestNameFromTestId(t.Id)))
+	if t.Failed {
+		sb.WriteString(fmt.Sprintf("Failed: %t\n", t.Failed))
+	}
+	sb.WriteString("\n")
+
+	sb.WriteString(fmt.Sprintf("Tables used: %s\n", strings.Join(t.TablesUsed, ", ")))
+	sb.WriteString("Queries: \n")
+	for _, query := range t.Queries {
+		sb.WriteString(fmt.Sprintf("%s;\n", query.Text))
+	}
+	sb.WriteString("\n")
+
+	sb.WriteString("send_query(DOLT_PATCH) calls for used tables:\n")
+	for _, table := range t.TablesUsed {
+		sb.WriteString(fmt.Sprintf(`send_query("SELECT statement_order, TO_BASE64(statement) FROM DOLT_PATCH('HEAD', 'WORKING', '%s');",True)`, table))
+		sb.WriteString("\n")
+	}
+	sb.WriteString("\n")
+
+	return sb.String()
 }
 
 var pytestReportSeparator = "======================================================================"
@@ -39,11 +76,12 @@ func parseTestRun(settings Settings) (TestRun, error) {
 	}
 	result.FailedTestIds = failedTests
 
-	queries, err := parseQueries(settings, failedTests)
+	queries, tests, err := parseQueries(settings, failedTests)
 	if err != nil {
 		return result, err
 	}
 	result.Queries = queries
+	result.Tests = tests
 
 	return result, nil
 }
@@ -86,14 +124,16 @@ func getFailedTests(settings Settings) ([]string, error) {
 	return failedTests, nil
 }
 
-func parseQueries(settings Settings, failedTestIds []string) (QueryCollection, error) {
-	result := NewQueryCollection()
+func parseQueries(settings Settings, failedTestIds []string) (QueryCollection, []Test, error) {
+	queryCollection := NewQueryCollection()
+	tests := []Test{}
+	var currentTest *Test
 	ctx := sql.NewEmptyContext()
 	logger := settings.logger
 
 	input, err := os.Open(settings.doltLogFilePath)
 	if err != nil {
-		return result, err
+		return queryCollection, tests, err
 	}
 	defer input.Close()
 
@@ -135,8 +175,8 @@ func parseQueries(settings Settings, failedTestIds []string) (QueryCollection, e
 		switch {
 		case testStartingParse != nil:
 			testId = testStartingParse[0]
-			// this was a "notification" query, no need to analyze it
-			continue
+			//// this was a "notification" query, no need to analyze it
+			//continue
 		case testFinishedParse != nil:
 			finishedTestId := testFinishedParse[0]
 			if finishedTestId != testId {
@@ -144,8 +184,8 @@ func parseQueries(settings Settings, failedTestIds []string) (QueryCollection, e
 					lineNumber, finishedTestId, testId)
 			}
 			testId = ""
-			// this was a "notification" query, no need to analyze it
-			continue
+			//// this was a "notification" query, no need to analyze it
+			//continue
 		}
 
 		if settings.hideNonTestQueries && testId == "" {
@@ -160,12 +200,23 @@ func parseQueries(settings Settings, failedTestIds []string) (QueryCollection, e
 		}
 
 		var node sql.Node
-		parsedNode, err := ParseQuery(ctx, query)
+		parsedNode, err := parse.Parse(ctx, query)
 		if err != nil {
-			logger.Logf("Error parsing query '%s': %s", query, err)
+			logger.Logf("Line %d, error parsing query '%s': %s", lineNumber, query, err)
+			continue
 		} else {
 			node = parsedNode
 		}
+
+		//cleanNode, err := DropExtraneousData(node)
+		//if err != nil {
+		//	logger.Logf("Line %d, error cleaning query '%s': %s", lineNumber, query, err)
+		//	continue
+		//} else {
+		//	node = cleanNode
+		//}
+
+		nodeDebugString := sql.DebugString(node)
 
 		queryObj := Query{
 			TestId:     testId,
@@ -175,11 +226,79 @@ func parseQueries(settings Settings, failedTestIds []string) (QueryCollection, e
 			Node:       node,
 			LineNumber: lineNumber,
 			Error:      queryError,
+			NodeDebug:  nodeDebugString,
 		}
-		result.Add(queryObj)
+		queryCollection.Add(queryObj)
+
+		if testId != "" {
+			tablesUsed := getTablesUsed(node)
+
+			if currentTest == nil || currentTest.Id != testId {
+				if currentTest != nil {
+					tests = append(tests, *currentTest)
+					currentTest = nil
+				}
+				currentTest = &Test{
+					Id:         testId,
+					Failed:     testFailed,
+					Queries:    []Query{queryObj},
+					TablesUsed: tablesUsed,
+				}
+			} else {
+				currentTest.Queries = append(currentTest.Queries, queryObj)
+				for _, table := range tablesUsed {
+					if !slices.Contains(currentTest.TablesUsed, table) {
+						currentTest.TablesUsed = append(currentTest.TablesUsed, table)
+					}
+				}
+			}
+		}
 	}
 
-	return result, nil
+	if currentTest != nil {
+		tests = append(tests, *currentTest)
+		currentTest = nil
+	}
+
+	return queryCollection, tests, nil
+}
+
+func getTablesUsed(node sql.Node) []string {
+	tables := []string{}
+	transform.Inspect(node, func(node sql.Node) bool {
+		var tableName string
+		switch node := node.(type) {
+		case *plan.UnresolvedTable:
+			tableName = node.Name()
+		case *plan.ResolvedTable:
+			tableName = node.Name()
+		}
+		if tableName != "" && !slices.Contains(tables, tableName) {
+			tables = append(tables, tableName)
+		}
+
+		expressioner, ok := node.(sql.Expressioner)
+		if ok {
+			expressions := expressioner.Expressions()
+			for _, expr := range expressions {
+				transform.InspectExpr(expr, func(expr sql.Expression) bool {
+					switch expr := expr.(type) {
+					case *plan.Subquery:
+						subTables := getTablesUsed(expr.Query)
+						for _, subTable := range subTables {
+							if !slices.Contains(tables, subTable) {
+								tables = append(tables, subTable)
+							}
+						}
+					}
+					return true
+				})
+			}
+		}
+
+		return true
+	})
+	return tables
 }
 
 func AnalyzeTestRun(settings Settings) (AnalysisOutput, error) {
@@ -200,9 +319,33 @@ func AnalyzeTestRun(settings Settings) (AnalysisOutput, error) {
 	}
 	defer queriesOutput.Close()
 	queriesLogger := NewProxyLogger(NewFileLogger(queriesOutput), settings.logger)
+
+	// write the queries to a file, one line per query
+	flatQueriesOutputPath := settings.GetOutputFilePath(".queries.sql")
+	flatQueriesOutput, err := os.Create(flatQueriesOutputPath)
+	if err != nil {
+		return result, err
+	}
+	defer queriesOutput.Close()
+	flatQueriesLogger := NewFileLogger(flatQueriesOutput)
+
 	for _, query := range queryCollection.All {
 		queriesLogger.Logf(query.String(settings.logQueryText))
 		queriesLogger.Log(analysisReportSeparator)
+		flatQueriesLogger.Logf("%s;\n", query.Text)
+	}
+
+	// write tests to a file
+	testsOutputPath := settings.GetOutputFilePath(".tests")
+	testsOutput, err := os.Create(testsOutputPath)
+	if err != nil {
+		return result, err
+	}
+	defer testsOutput.Close()
+	testsLogger := NewFileLogger(testsOutput)
+	for _, test := range testRun.Tests {
+		testsLogger.Logf(test.String())
+		testsLogger.Log(analysisReportSeparator)
 	}
 
 	// write analysis to a file

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/dolthub/go-mysql-server/sql"
 	"github.com/dolthub/go-mysql-server/sql/expression"
-	"github.com/dolthub/go-mysql-server/sql/parse"
 	"github.com/dolthub/go-mysql-server/sql/plan"
 	"github.com/dolthub/go-mysql-server/sql/transform"
 	"github.com/dolthub/go-mysql-server/sql/types"
@@ -25,18 +24,6 @@ func getPlaceholder(dataType sql.Type) sql.Expression {
 	default:
 		panic(fmt.Sprintf("unhandled type: %s", dataType))
 	}
-}
-
-func ParseQuery(ctx *sql.Context, query string) (sql.Node, error) {
-	node, err := parse.Parse(ctx, query)
-	if err != nil {
-		return nil, err
-	}
-	node, err = DropExtraneousData(node)
-	if err != nil {
-		return nil, err
-	}
-	return node, nil
 }
 
 func DropExtraneousData(node sql.Node) (sql.Node, error) {

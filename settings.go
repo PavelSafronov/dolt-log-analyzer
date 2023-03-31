@@ -63,7 +63,7 @@ func readInputs() Settings {
 	settings.hideNonTestQueries = hideNonTestQueries
 	settings.logQueryText = showQueryText
 	if !verbose {
-		settings.logger = nil
+		settings.logger = NewNoopLogger()
 	}
 	return settings
 }

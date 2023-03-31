@@ -7,12 +7,24 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestLatestLogs(t *testing.T) {
+func TestSpecificLogs(t *testing.T) {
 	t.Skip("Skipping test because it is specific to Pavel's system")
 	settings := NewSettings("/Users/pavel/Work/2022-12-07-nautobot/dolt-nautobot/test_data/logs-PlatformTestCase-march-23/dolt-sql.log", "")
 	result, err := mainLogic(settings)
 	require.NoError(t, err)
 	require.Equal(t, "/Users/pavel/Work/2022-12-07-nautobot/dolt-nautobot/test_data/logs-PlatformTestCase-march-23/dolt-sql.queries.log", result.queriesOutputPath)
+}
+
+func TestLatestLogs(t *testing.T) {
+	t.Skip("Skipping test because it is specific to Pavel's system")
+	settings := NewSettings(
+		"/Users/pavel/Work/2022-12-07-nautobot/dolt-nautobot/test_data/logs/dolt-sql.log",
+		"/Users/pavel/Work/2022-12-07-nautobot/dolt-nautobot/test_data/logs/dolt-run.log")
+	result, err := mainLogic(settings)
+	require.NoError(t, err)
+	require.Equal(t,
+		"/Users/pavel/Work/2022-12-07-nautobot/dolt-nautobot/test_data/logs/dolt-sql.queries.log",
+		result.queriesOutputPath)
 }
 
 func TestPlatformTestCase(t *testing.T) {
@@ -67,5 +79,4 @@ func TestSampleCase(t *testing.T) {
 	require.Contains(t, outText, "Query error: table not found: django_content_type")
 	require.Contains(t, outText, "django_content_type.app_label")
 	require.Contains(t, outText, "ipam_prefix.prefix_length ASC nullsFirst")
-	require.Contains(t, outText, "ROLLBACK TO SAVEPOINT placeholder")
 }

@@ -10,6 +10,7 @@ type Query struct {
 	LineNumber int
 	Text       string
 	Node       sql.Node
+	NodeDebug  string
 	TestId     string
 	TestFailed bool
 	PyTestName string

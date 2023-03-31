@@ -103,3 +103,17 @@ func (p MultiLogger) Logf(format string, args ...any) {
 func NewProxyLogger(loggers ...Logger) *MultiLogger {
 	return &MultiLogger{Loggers: loggers}
 }
+
+type NoopLogger struct{}
+
+func NewNoopLogger() *NoopLogger {
+	return &NoopLogger{}
+}
+
+func (n NoopLogger) Log(args ...any) {
+}
+
+func (n NoopLogger) Logf(format string, args ...any) {
+}
+
+var _ Logger = (*NoopLogger)(nil)
