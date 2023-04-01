@@ -48,8 +48,9 @@ func (t *Test) String() string {
 	sb.WriteString("\n")
 
 	sb.WriteString("send_query(DOLT_PATCH) calls for used tables:\n")
+	sb.WriteString("if is_db_dolt():\n")
 	for _, table := range t.TablesUsed {
-		sb.WriteString(fmt.Sprintf(`send_query("SELECT statement_order, TO_BASE64(statement) FROM DOLT_PATCH('HEAD', 'WORKING', '%s');",True)`, table))
+		sb.WriteString(fmt.Sprintf(`    send_query("SELECT statement_order, TO_BASE64(statement) FROM DOLT_PATCH('HEAD', 'WORKING', '%s');",True)`, table))
 		sb.WriteString("\n")
 	}
 	sb.WriteString("\n")
