@@ -20,6 +20,7 @@ func TestLatestLogs(t *testing.T) {
 	settings := NewSettings(
 		"/Users/pavel/Work/2022-12-07-nautobot/dolt-nautobot/test_data/logs/dolt-sql.log",
 		"/Users/pavel/Work/2022-12-07-nautobot/dolt-nautobot/test_data/logs/dolt-run.log")
+	settings.logger = NewNoopLogger()
 	result, err := mainLogic(settings)
 	require.NoError(t, err)
 	require.Equal(t,
@@ -35,6 +36,7 @@ func TestPlatformTestCase(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.sql.queries.txt", result.queriesOutputPath)
 	require.Equal(t, "test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.sql.analysis.txt", result.analysisOutputPath)
+	require.Equal(t, "test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.sql.patch_queries.txt", result.patchQueriesOutputPath)
 }
 
 func TestSampleCase(t *testing.T) {

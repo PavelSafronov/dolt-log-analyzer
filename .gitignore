@@ -13,5 +13,8 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
-test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.sql.queries.sql.txt
+test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.sql.analysis.txt
+test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.sql.patch_queries.txt
+test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.sql.queries.txt
+test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.sql.queries_flat.txt
 test-logs/nautobot.dcim.tests.test_filters.PlatformTestCase.sql.tests.txt

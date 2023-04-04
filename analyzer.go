@@ -15,14 +15,23 @@ import (
 )
 
 type AnalysisOutput struct {
-	queriesOutputPath  string
-	analysisOutputPath string
+	analysisOutputPath     string
+	patchQueriesOutputPath string
+	queriesOutputPath      string
+	testsOutputPath        string
 }
 
 type TestRun struct {
 	Queries       QueryCollection
 	FailedTestIds []string
 	Tests         []Test
+	PatchQueries  []PatchQuery
+}
+
+type PatchQuery struct {
+	LineNumber int
+	TableName  string
+	Queries    []string
 }
 
 type Test struct {
@@ -71,13 +80,14 @@ type Pair[T, U any] struct {
 func parseTestRun(settings Settings) (TestRun, error) {
 	result := TestRun{}
 
-	failedTests, err := getFailedTests(settings)
+	failedTestIds, patchQueries, err := parsePytestReport(settings)
 	if err != nil {
 		return result, err
 	}
-	result.FailedTestIds = failedTests
+	result.FailedTestIds = failedTestIds
+	result.PatchQueries = patchQueries
 
-	queries, tests, err := parseQueries(settings, failedTests)
+	queries, tests, err := parseQueries(settings, failedTestIds)
 	if err != nil {
 		return result, err
 	}
@@ -87,42 +97,76 @@ func parseTestRun(settings Settings) (TestRun, error) {
 	return result, nil
 }
 
-func getFailedTests(settings Settings) ([]string, error) {
-	failedTests := make([]string, 0)
+func parsePytestReport(settings Settings) (failedTestIds []string, patchQueries []PatchQuery, err error) {
+	patchQueries = make([]PatchQuery, 0)
+	failedTestIds = make([]string, 0)
 	if settings.pytestReportPath != "" {
 		input, err := os.Open(settings.pytestReportPath)
 		if err != nil {
-			return failedTests, err
+			return failedTestIds, patchQueries, err
 		}
 		defer input.Close()
 
+		lineNumber := 0
+		nextLineHasPatchQuery := false
+		patchQueryTargetTable := ""
 		separatorSeen := false
 		scanner := bufio.NewScanner(input)
 		for scanner.Scan() {
 			line := scanner.Text()
+			lineNumber++
 			if line == pytestReportSeparator {
 				separatorSeen = true
-				continue
 			}
 
-			if !separatorSeen {
-				continue
-			}
+			if separatorSeen {
+				// check if the test failed
+				failedTestParts := RegexSplit(line, pyTestFailedRegex)
+				if len(failedTestParts) == 0 {
+					// check if the test errored instead
+					failedTestParts = RegexSplit(line, pyTestErrorRegex)
+				}
 
-			// check if the test failed
-			failedTestParts := RegexSplit(line, pyTestFailedRegex)
-			if len(failedTestParts) == 0 {
-				// check if the test errored instead
-				failedTestParts = RegexSplit(line, pyTestErrorRegex)
-			}
+				if len(failedTestParts) == 2 {
+					testId := fmt.Sprintf("%s.%s", failedTestParts[1], failedTestParts[0])
+					failedTestIds = append(failedTestIds, testId)
+				}
+			} else {
+				if nextLineHasPatchQuery {
+					pq := PatchQuery{
+						TableName:  patchQueryTargetTable,
+						LineNumber: lineNumber,
+					}
+					resultMatch := RegexSplit(line, pyTestPatchResultRegex)
+					result := resultMatch[0]
+					items := strings.Split(result, "), (")
+					for _, item := range items {
+						item = strings.Replace(item, "\\n", "", -1)
+						itemMatch := RegexSplit(item, `.*, '(.*)'.*`)
+						b64query := itemMatch[0]
+						queryBytes, _ := base64.StdEncoding.DecodeString(b64query)
+						query := string(queryBytes)
+						pq.Queries = append(pq.Queries, query)
+					}
 
-			if len(failedTestParts) == 2 {
-				testId := fmt.Sprintf("%s.%s", failedTestParts[1], failedTestParts[0])
-				failedTests = append(failedTests, testId)
+					patchQueries = append(patchQueries, pq)
+					nextLineHasPatchQuery = false
+				} else {
+					shouldDebug := strings.Contains(line, "FROM DOLT_PATCH")
+					if shouldDebug {
+						fmt.Println(line)
+					}
+					// check if this is a patch query result
+					patchQuery := RegexSplit(line, pyTestPatchRegex)
+					if len(patchQuery) == 1 {
+						nextLineHasPatchQuery = true
+						patchQueryTargetTable = patchQuery[0]
+					}
+				}
 			}
 		}
 	}
-	return failedTests, nil
+	return failedTestIds, patchQueries, nil
 }
 
 func parseQueries(settings Settings, failedTestIds []string) (QueryCollection, []Test, error) {
@@ -310,43 +354,71 @@ func AnalyzeTestRun(settings Settings) (AnalysisOutput, error) {
 		return result, err
 	}
 	queryCollection := testRun.Queries
-	//failedTestIds := testRun.FailedTestIds
 
-	// write the queries to a file
-	queriesOutputPath := settings.GetOutputFilePath(".queries")
-	queriesOutput, err := os.Create(queriesOutputPath)
-	if err != nil {
-		return result, err
+	// output queries
+	if len(queryCollection.All) > 0 {
+		// write the queries to a file
+		queriesOutputPath := settings.GetOutputFilePath(".queries")
+		queriesOutput, err := os.Create(queriesOutputPath)
+		if err != nil {
+			return result, err
+		}
+		defer queriesOutput.Close()
+		queriesLogger := NewProxyLogger(NewFileLogger(queriesOutput), settings.logger)
+
+		// write the queries to a file, one line per query
+		flatQueriesOutputPath := settings.GetOutputFilePath(".queries_flat")
+		flatQueriesOutput, err := os.Create(flatQueriesOutputPath)
+		if err != nil {
+			return result, err
+		}
+		defer queriesOutput.Close()
+		flatQueriesLogger := NewFileLogger(flatQueriesOutput)
+
+		for _, query := range queryCollection.All {
+			queriesLogger.Logf(query.String(settings.logQueryText))
+			queriesLogger.Log(analysisReportSeparator)
+			flatQueriesLogger.Logf("%s;\n", query.Text)
+		}
+		result.queriesOutputPath = queriesOutputPath
 	}
-	defer queriesOutput.Close()
-	queriesLogger := NewProxyLogger(NewFileLogger(queriesOutput), settings.logger)
 
-	// write the queries to a file, one line per query
-	flatQueriesOutputPath := settings.GetOutputFilePath(".queries.sql")
-	flatQueriesOutput, err := os.Create(flatQueriesOutputPath)
-	if err != nil {
-		return result, err
-	}
-	defer queriesOutput.Close()
-	flatQueriesLogger := NewFileLogger(flatQueriesOutput)
+	// unencode 'from dolt_patch' queries and write them to a file
+	if len(testRun.PatchQueries) > 0 {
+		patchQueriesOutputPath := settings.GetOutputFilePath(".patch_queries")
+		patchQueriesOutput, err := os.Create(patchQueriesOutputPath)
+		if err != nil {
+			return result, err
+		}
+		defer patchQueriesOutput.Close()
+		patchQueriesLogger := NewFileLogger(patchQueriesOutput)
 
-	for _, query := range queryCollection.All {
-		queriesLogger.Logf(query.String(settings.logQueryText))
-		queriesLogger.Log(analysisReportSeparator)
-		flatQueriesLogger.Logf("%s;\n", query.Text)
+		for _, patchQuery := range testRun.PatchQueries {
+			patchQueriesLogger.Logf("Report line: %d\n", patchQuery.LineNumber)
+			patchQueriesLogger.Logf("Table: %s\n\n", patchQuery.TableName)
+
+			for _, query := range patchQuery.Queries {
+				patchQueriesLogger.Logf("%s\n", query)
+			}
+			patchQueriesLogger.Log(analysisReportSeparator)
+		}
+		result.patchQueriesOutputPath = patchQueriesOutputPath
 	}
 
 	// write tests to a file
-	testsOutputPath := settings.GetOutputFilePath(".tests")
-	testsOutput, err := os.Create(testsOutputPath)
-	if err != nil {
-		return result, err
-	}
-	defer testsOutput.Close()
-	testsLogger := NewFileLogger(testsOutput)
-	for _, test := range testRun.Tests {
-		testsLogger.Logf(test.String())
-		testsLogger.Log(analysisReportSeparator)
+	if len(testRun.Tests) > 0 {
+		testsOutputPath := settings.GetOutputFilePath(".tests")
+		testsOutput, err := os.Create(testsOutputPath)
+		if err != nil {
+			return result, err
+		}
+		defer testsOutput.Close()
+		testsLogger := NewFileLogger(testsOutput)
+		for _, test := range testRun.Tests {
+			testsLogger.Logf(test.String())
+			testsLogger.Log(analysisReportSeparator)
+		}
+		result.testsOutputPath = testsOutputPath
 	}
 
 	// write analysis to a file
@@ -362,7 +434,28 @@ func AnalyzeTestRun(settings Settings) (AnalysisOutput, error) {
 	analysisLogger.Logf("Number of tests: %d\n", len(queryCollection.ByTestId))
 	analysisLogger.Logf("Number of test queries: %d\n", len(queryCollection.TestQueries))
 	analysisLogger.Log(analysisReportSeparator)
+	result.analysisOutputPath = analysisOutputPath
 
+	sortedListOfTestQueries := sortQueries(queryCollection)
+
+	for _, pair := range sortedListOfTestQueries {
+		dbg := pair.First
+		queries := pair.Second
+
+		analysisLogger.Logf("Debug string: \n%s\n", dbg)
+		analysisLogger.Logf("Number of queries: %d\n", len(queries))
+
+		for index, query := range queries {
+			analysisLogger.Logf("Query %d/%d:\n%s\n", index+1, len(queries), query.String(settings.logQueryText))
+		}
+
+		analysisLogger.Logf(analysisReportSeparator)
+	}
+
+	return result, nil
+}
+
+func sortQueries(queryCollection QueryCollection) []Pair[string, []Query] {
 	sortedListOfTestQueries := []Pair[string, []Query]{}
 	for dbg, queries := range queryCollection.ByDebugString {
 		testQueries := make([]Query, 0)
@@ -402,22 +495,5 @@ func AnalyzeTestRun(settings Settings) (AnalysisOutput, error) {
 			return leftPair.First < rightPair.First
 		}
 	})
-	for _, pair := range sortedListOfTestQueries {
-		dbg := pair.First
-		queries := pair.Second
-
-		analysisLogger.Logf("Debug string: \n%s\n", dbg)
-		analysisLogger.Logf("Number of queries: %d\n", len(queries))
-
-		for index, query := range queries {
-			analysisLogger.Logf("Query %d/%d:\n%s\n", index+1, len(queries), query.String(settings.logQueryText))
-		}
-
-		analysisLogger.Logf(analysisReportSeparator)
-	}
-
-	// fill in the results
-	result.queriesOutputPath = queriesOutputPath
-	result.analysisOutputPath = analysisOutputPath
-	return result, nil
+	return sortedListOfTestQueries
 }

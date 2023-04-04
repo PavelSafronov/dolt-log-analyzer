@@ -13,10 +13,12 @@ var (
 	// select 'dolt: _post_teardown, test id = nautobot.dcim.tests.test_filters.CableTestCase.test_id'
 	testFinishedRegex = "select 'dolt: _post_teardown, test id = (.*)'"
 
-	pyTestFailedRegex = `FAIL: (.*) \((.*)\)`
-	pyTestErrorRegex  = `ERROR: (.*) \((.*)\)`
-	pyTestNameRegex   = `(.*) \((.*)\)`
-	testIdNameRegex   = `(.*)\.(.*)`
+	pyTestFailedRegex      = `FAIL: (.*) \((.*)\)`
+	pyTestErrorRegex       = `ERROR: (.*) \((.*)\)`
+	pyTestNameRegex        = `(.*) \((.*)\)`
+	pyTestPatchRegex       = `Sending query: SELECT statement_order, TO_BASE64\(statement\) FROM DOLT_PATCH\('HEAD', 'WORKING', '(.*)'\);`
+	pyTestPatchResultRegex = `Result: \((.*)\)`
+	testIdNameRegex        = `(.*)\.(.*)`
 )
 
 func RegexSplit(text string, exp string) []string {
